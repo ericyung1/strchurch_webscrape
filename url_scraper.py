@@ -9,7 +9,7 @@ import pandas as pd
 import time
 
 chrome_options = Options()
-chrome_options.add_argument("--headless")
+# chrome_options.add_argument("--headless")  # Uncomment to run headless
 chrome_options.add_argument("--disable-gpu")
 
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
@@ -25,19 +25,21 @@ for index, row in df.iterrows():
     search_box.send_keys(address)
     search_box.submit()
 
-    time.sleep(1)
-
     try:
-        #first_link = driver.find_element(By.XPATH, "//div[@class='g']//a").get_attribute("href")
+        # Optional delay for dynamic content to load
+        time.sleep(2)
+
+        # Wait for search results to load and be visible
         first_link = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, "//div[@class='g']//a"))
+            EC.visibility_of_element_located((By.XPATH, "(//div[@class='yuRUbf']/a)[1]"))
         ).get_attribute("href")
         df.at[index, 'URL'] = first_link
     except Exception as e:
         print(f"Error on address {address}: {e}")
         df.at[index, 'URL'] = "N/A"
 
-    if index == 5:
+    # Optional: limit the number of searches for testing
+    if index == 3:
         break
 
 df.to_csv('churches_cleaned.csv', index=False)
